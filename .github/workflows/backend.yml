@@ -1,0 +1,65 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "services/backend/**"
+      - ".github/workflows/backend.yml"
+  pull_request:
+    paths:
+      - "services/backend/**"
+      - ".github/workflows/backend.yml"
+
+defaults:
+  run:
+    working-directory: services/backend
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: services/backend/requirements.txt
+
+      - name: Install dev tools
+        run: pip install ruff black
+
+      - name: ruff check
+        run: ruff check .
+
+      - name: black check
+        run: black --check .
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET_KEY: ci-test-secret-not-for-production
+      DATABASE_URL: sqlite:///./test_todo.db
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: services/backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run migrations
+        run: alembic upgrade head
+
+      - name: Run tests
+        run: pytest -v --tb=short
+
+      - name: Clean up test DB
+        if: always()
+        run: rm -f test_todo.db
