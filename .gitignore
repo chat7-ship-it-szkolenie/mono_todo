@@ -1,0 +1,20 @@
+.vscode/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Selenium / test artifacts
+screenshots/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+
+# IDEs
+.vscode/
