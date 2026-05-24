@@ -1,6 +1,6 @@
 """Repository layer for database operations."""
 
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import func, text
@@ -128,7 +128,6 @@ class TaskRepository:
     ) -> list[Task]:
         """Get tasks due within the next `days` days (not yet done)."""
         today = date.today()
-        from datetime import timedelta
         cutoff = today + timedelta(days=days)
         statement = (
             select(Task)
@@ -143,7 +142,6 @@ class TaskRepository:
 
     def update(self, task: Task) -> Task:
         """Update an existing task."""
-        from datetime import datetime, timezone
         task.updated_at = datetime.now(timezone.utc)
         self.session.add(task)
         self.session.commit()
