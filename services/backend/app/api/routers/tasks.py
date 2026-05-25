@@ -7,8 +7,8 @@ from sqlmodel import Session
 
 from app.api.deps import get_current_admin_user, get_current_user
 from app.core.config import settings
-from app.db.models import Category, Priority, Status, User
-from app.db.repository import CategoryRepository, TaskRepository
+from app.db.models import Priority, Status, User
+from app.db.repository import TaskRepository
 from app.db.session import get_session
 from app.schemas.task import (
     PriorityAnalysisRequest,
@@ -66,20 +66,11 @@ def get_task_service(
     return TaskService(repository, ai_service)
 
 
-def _get_category_name(category_id: Optional[int], session: Session) -> Optional[str]:
-    """Resolve category name from ID."""
-    if not category_id:
-        return None
-    category = session.get(Category, category_id)
-    return category.name if category else None
-
-
 @router.post("/", response_model=TaskResponse, status_code=201)
 async def create_task(
     task_data: TaskCreate,
     use_ai_priority: bool = Query(default=False, description="Use AI for priority suggestion"),
     service: TaskService = Depends(get_task_service),
-    session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ) -> TaskResponse:
     """
@@ -89,7 +80,6 @@ async def create_task(
         task_data: Task creation data
         use_ai_priority: Whether to use AI for priority suggestion
         service: Task service dependency
-        session: Database session
         current_user: Authenticated user
 
     Returns:
@@ -98,20 +88,14 @@ async def create_task(
     Raises:
         HTTPException: 404 if category_id does not exist
     """
-    if task_data.category_id is not None:
-        category = session.get(Category, task_data.category_id)
-        if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
-        category_name = category.name
-    else:
-        category_name = None
-
-    task = await service.create_task(
-        task_data,
-        use_ai_priority=use_ai_priority,
-        owner_id=current_user.id,
-        category_name=category_name,
-    )
+    try:
+        task = await service.create_task(
+            task_data,
+            use_ai_priority=use_ai_priority,
+            owner_id=current_user.id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     return service.to_response(task)
 
 
@@ -263,7 +247,6 @@ async def update_task(
     task_id: int,
     task_data: TaskUpdate,
     service: TaskService = Depends(get_task_service),
-    session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ) -> TaskResponse:
     """
@@ -273,7 +256,6 @@ async def update_task(
         task_id: Task identifier
         task_data: Task update data
         service: Task service dependency
-        session: Database session
         current_user: Authenticated user
 
     Returns:
@@ -282,12 +264,10 @@ async def update_task(
     Raises:
         HTTPException: If task not found or not owned by current user
     """
-    if task_data.category_id is not None:
-        category = session.get(Category, task_data.category_id)
-        if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
-
-    task = service.update_task(task_id, task_data, owner_id=current_user.id)
+    try:
+        task = service.update_task(task_id, task_data, owner_id=current_user.id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return service.to_response(task)

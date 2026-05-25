@@ -35,7 +35,6 @@ class TaskService:
         task_data: TaskCreate,
         use_ai_priority: bool = False,
         owner_id: Optional[int] = None,
-        category_name: Optional[str] = None,
     ) -> Task:
         """
         Create a new task with optional AI-based prioritization.
@@ -44,11 +43,20 @@ class TaskService:
             task_data: Task creation data
             use_ai_priority: Whether to use AI category context for priority suggestion
             owner_id: ID of the owning user
-            category_name: Name of the assigned category (used by AI when use_ai_priority=True)
 
         Returns:
             Created task
+
+        Raises:
+            ValueError: If category_id does not exist
         """
+        category_name: Optional[str] = None
+        if task_data.category_id is not None:
+            category = self.repository.get_category(task_data.category_id)
+            if not category:
+                raise ValueError("Category not found")
+            category_name = category.name
+
         user_priority = task_data.priority
 
         # Pass category hint and due_date to AI only when use_ai_priority is True
@@ -167,6 +175,10 @@ class TaskService:
         Returns:
             Updated task if found and accessible, None otherwise
         """
+        if task_data.category_id is not None:
+            if not self.repository.get_category(task_data.category_id):
+                raise ValueError("Category not found")
+
         task = self.repository.get_by_id(task_id, owner_id=owner_id)
         if not task:
             return None
