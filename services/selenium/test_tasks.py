@@ -252,7 +252,9 @@ class TestDeleteTask:
         delete_btn.click()
 
         toast = wait(driver).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, ".toast"))
+            EC.visibility_of_element_located(
+                (By.XPATH, "//*[contains(@class,'toast') and contains(text(),'Zadanie usunięte')]")
+            )
         )
         assert "Zadanie usunięte" in toast.text, (
             f"Oczekiwano toastu 'Zadanie usunięte', otrzymano: '{toast.text}'"
