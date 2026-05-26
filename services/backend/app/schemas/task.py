@@ -72,7 +72,7 @@ class TaskResponse(TaskBase):
     due_date: Optional[date] = None
     created_at: datetime
     updated_at: datetime
-    category: Optional[CategoryResponse] = ""
+    category: Optional[CategoryResponse] = None
     tags: list[str] = []
     ai_override: bool = False
 
