@@ -29,6 +29,11 @@ if [[ ! -f "$BACKEND_DIR/.env" ]]; then
   exit 1
 fi
 
+if ! python3 -c "import mcp" 2>/dev/null; then
+  error "MCP package not installed. Run: pip3 install 'mcp[cli]'"
+  exit 1
+fi
+
 # ── PID tracking ──────────────────────────────────────────────────────────────
 
 PIDS_FILE="$ROOT_DIR/.dev-pids"
@@ -74,6 +79,17 @@ for i in $(seq 1 30); do
   fi
 done
 
+# ── MCP Server ────────────────────────────────────────────────────────────────
+
+info "Starting MCP server..."
+(
+  BACKEND_URL=http://localhost:8000 python3 "$ROOT_DIR/services/mcp_server/server.py" \
+    2>&1 | sed 's/^/[mcp]     /'
+) &
+MCP_PID=$!
+echo "$MCP_PID" >> "$PIDS_FILE"
+ok "MCP Server PID $MCP_PID"
+
 # ── Frontend ──────────────────────────────────────────────────────────────────
 
 info "Starting frontend on http://localhost:5173 ..."
@@ -95,6 +111,7 @@ echo ""
 echo "    Frontend:  http://localhost:5173"
 echo "    Backend:   http://localhost:8000"
 echo "    API docs:  http://localhost:8000/docs"
+echo "    MCP:       stdio (Claude Code auto-connects via .mcp.json)"
 echo ""
 
 wait

@@ -172,7 +172,9 @@ class TestOpenAIPriorityService:
 
     async def test_parses_high_priority_response(self, mocker, service):
         mock_create = mocker.patch("openai.OpenAI").return_value.chat.completions.create
-        mock_create.return_value = make_openai_response(mocker, "PRIORITY: high\nREASON: Contains urgent deadline")
+        mock_create.return_value = make_openai_response(
+            mocker, "PRIORITY: high\nREASON: Contains urgent deadline"
+        )
 
         priority, reason = await service.suggest_priority("Fix bug", None)
 
@@ -181,7 +183,9 @@ class TestOpenAIPriorityService:
 
     async def test_parses_low_priority_response(self, mocker, service):
         mock_create = mocker.patch("openai.OpenAI").return_value.chat.completions.create
-        mock_create.return_value = make_openai_response(mocker, "PRIORITY: low\nREASON: Optional cleanup task")
+        mock_create.return_value = make_openai_response(
+            mocker, "PRIORITY: low\nREASON: Optional cleanup task"
+        )
 
         priority, reason = await service.suggest_priority("Cleanup", None)
 
@@ -190,7 +194,9 @@ class TestOpenAIPriorityService:
 
     async def test_parses_medium_priority_response(self, mocker, service):
         mock_create = mocker.patch("openai.OpenAI").return_value.chat.completions.create
-        mock_create.return_value = make_openai_response(mocker, "PRIORITY: medium\nREASON: Routine task")
+        mock_create.return_value = make_openai_response(
+            mocker, "PRIORITY: medium\nREASON: Routine task"
+        )
 
         priority, reason = await service.suggest_priority("Daily standup", None)
 
@@ -199,7 +205,9 @@ class TestOpenAIPriorityService:
 
     async def test_unknown_priority_value_defaults_to_medium(self, mocker, service):
         mock_create = mocker.patch("openai.OpenAI").return_value.chat.completions.create
-        mock_create.return_value = make_openai_response(mocker, "PRIORITY: unknown\nREASON: something")
+        mock_create.return_value = make_openai_response(
+            mocker, "PRIORITY: unknown\nREASON: something"
+        )
 
         priority, _ = await service.suggest_priority("Some task", None)
 

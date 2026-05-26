@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from app.db.models import Category, Priority, Status, Task
+from app.db.models import Priority, Status, Task
 from app.db.repository import TaskRepository
 from app.schemas.task import CategoryResponse, TaskCreate, TaskResponse, TaskUpdate
 from app.services.ai_priority_service import AIPriorityService, MockAIPriorityService

@@ -1,13 +1,15 @@
 """Tests for task API endpoints."""
 
-from datetime import date, timedelta
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.db.models import Priority, Status, Task, User
-from app.services.ai_priority_service import MockAIPriorityService, OpenAIPriorityService, _PRIORITY_CACHE
+from app.services.ai_priority_service import (
+    MockAIPriorityService,
+    OpenAIPriorityService,
+    _PRIORITY_CACHE,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -57,8 +59,12 @@ def test_create_task_with_ai_priority(client: TestClient) -> None:
     # MockAIPriorityService should classify this as high priority
     assert data["priority"] == Priority.HIGH.value
     assert data["priority_reason"] is not None
-    assert "Wysoki priorytet" in data["priority_reason"] or "urgent" in data["priority_reason"].lower()
-    assert "słowa kluczowe" in data["priority_reason"] or "keywords" in data["priority_reason"].lower()
+    assert (
+        "Wysoki priorytet" in data["priority_reason"] or "urgent" in data["priority_reason"].lower()
+    )
+    assert (
+        "słowa kluczowe" in data["priority_reason"] or "keywords" in data["priority_reason"].lower()
+    )
 
 
 def test_analyze_priority_endpoint(client: TestClient) -> None:
@@ -76,12 +82,22 @@ def test_analyze_priority_endpoint(client: TestClient) -> None:
     assert data["priority_reason"] is not None
     assert len(data["priority_reason"]) > 0
     # Verify the reason contains meaningful explanation
-    assert "Wysoki priorytet" in data["priority_reason"] or "urgent" in data["priority_reason"].lower()
+    assert (
+        "Wysoki priorytet" in data["priority_reason"] or "urgent" in data["priority_reason"].lower()
+    )
 
 
 def test_get_task(client: TestClient) -> None:
     """Test getting a task by ID."""
-    created = client.post("/tasks/", json={"title": "Test Task", "description": "Test description", "priority": "medium", "status": "todo"})
+    created = client.post(
+        "/tasks/",
+        json={
+            "title": "Test Task",
+            "description": "Test description",
+            "priority": "medium",
+            "status": "todo",
+        },
+    )
     task_id = created.json()["id"]
 
     response = client.get(f"/tasks/{task_id}")
@@ -161,7 +177,9 @@ def test_update_task(client: TestClient, test_db: Session, test_user: User) -> N
 def test_delete_task(client: TestClient, test_db: Session, test_user: User) -> None:
     """Test deleting a task."""
     # Create a task
-    task = Task(title="Task to Delete", priority=Priority.MEDIUM, status=Status.TODO, owner_id=test_user.id)
+    task = Task(
+        title="Task to Delete", priority=Priority.MEDIUM, status=Status.TODO, owner_id=test_user.id
+    )
     test_db.add(task)
     test_db.commit()
     test_db.refresh(task)
@@ -182,7 +200,9 @@ def test_delete_task_not_found(client: TestClient) -> None:
     assert response.status_code == 404
 
 
-def test_get_task_with_priority_reason(client: TestClient, test_db: Session, test_user: User) -> None:
+def test_get_task_with_priority_reason(
+    client: TestClient, test_db: Session, test_user: User
+) -> None:
     """Test getting a task that has priority_reason set."""
     task = Task(
         title="Test Task with Reason",
@@ -204,7 +224,9 @@ def test_get_task_with_priority_reason(client: TestClient, test_db: Session, tes
     assert "Wysoki priorytet" in data["priority_reason"]
 
 
-def test_get_all_tasks_includes_priority_reason(client: TestClient, test_db: Session, test_user: User) -> None:
+def test_get_all_tasks_includes_priority_reason(
+    client: TestClient, test_db: Session, test_user: User
+) -> None:
     """Test that all tasks in list include priority_reason field."""
     task1 = Task(
         title="Task 1",
@@ -229,11 +251,11 @@ def test_get_all_tasks_includes_priority_reason(client: TestClient, test_db: Ses
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 2
-    
+
     # Find our tasks
     task1_data = next((t for t in data if t["id"] == task1.id), None)
     task2_data = next((t for t in data if t["id"] == task2.id), None)
-    
+
     assert task1_data is not None
     assert task2_data is not None
     assert "priority_reason" in task1_data
@@ -410,9 +432,9 @@ def test_reanalyze_clears_ai_override_when_priority_no_longer_overridden(
     assert reanalyze_resp.status_code == 200
     reanalyzed = reanalyze_resp.json()
     assert reanalyzed["priority"] == Priority.MEDIUM.value
-    assert reanalyzed["ai_override"] is False, (
-        "ai_override must be cleared when AI no longer overrides user priority"
-    )
+    assert (
+        reanalyzed["ai_override"] is False
+    ), "ai_override must be cleared when AI no longer overrides user priority"
 
 
 def test_reanalyze_task_priority_not_found(client: TestClient) -> None:
@@ -457,4 +479,3 @@ def test_get_ai_service_returns_openai_when_key_set() -> None:
         assert isinstance(service, OpenAIPriorityService)
     finally:
         config.settings.openai_api_key = original
-

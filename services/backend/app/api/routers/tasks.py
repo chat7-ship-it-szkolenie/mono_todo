@@ -33,7 +33,9 @@ class TaskListParams:
         priority: Optional[Priority] = Query(default=None, description="Filter by priority"),
         category_id: Optional[int] = Query(default=None, description="Filter by category ID"),
         tag: Optional[str] = Query(default=None, description="Filter by tag"),
-        overdue: bool = Query(default=False, description="Return only overdue tasks (past due_date, not done)"),
+        overdue: bool = Query(
+            default=False, description="Return only overdue tasks (past due_date, not done)"
+        ),
         skip: int = Query(default=0, ge=0, description="Number of records to skip"),
         limit: int = Query(default=100, ge=1, le=1000, description="Maximum number of records"),
     ):
