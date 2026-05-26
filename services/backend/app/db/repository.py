@@ -110,7 +110,9 @@ class TaskRepository:
             statement = statement.where(Task.category_id == category_id)
         if tag is not None:
             statement = statement.where(
-                text("EXISTS (SELECT 1 FROM json_each(task.tags) WHERE value = :tag_val)").bindparams(tag_val=tag)
+                text(
+                    "EXISTS (SELECT 1 FROM json_each(task.tags) WHERE value = :tag_val)"
+                ).bindparams(tag_val=tag)
             )
         if overdue:
             today = date.today()

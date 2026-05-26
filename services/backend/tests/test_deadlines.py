@@ -133,20 +133,24 @@ def test_admin_all_overdue_filter_returns_only_overdue_tasks(
     was silently ignored and all tasks were returned.
     """
     today = date.today()
-    test_db.add(Task(
-        title="Overdue Task",
-        priority=Priority.MEDIUM,
-        status=Status.TODO,
-        due_date=today - timedelta(days=3),
-        owner_id=test_user.id,
-    ))
-    test_db.add(Task(
-        title="Future Task",
-        priority=Priority.MEDIUM,
-        status=Status.TODO,
-        due_date=today + timedelta(days=7),
-        owner_id=test_user.id,
-    ))
+    test_db.add(
+        Task(
+            title="Overdue Task",
+            priority=Priority.MEDIUM,
+            status=Status.TODO,
+            due_date=today - timedelta(days=3),
+            owner_id=test_user.id,
+        )
+    )
+    test_db.add(
+        Task(
+            title="Future Task",
+            priority=Priority.MEDIUM,
+            status=Status.TODO,
+            due_date=today + timedelta(days=7),
+            owner_id=test_user.id,
+        )
+    )
     test_db.commit()
 
     response = admin_client.get("/tasks/admin/all?overdue=true")
@@ -164,20 +168,24 @@ def test_admin_all_overdue_filter_excludes_done_tasks(
 ) -> None:
     """Admin overdue filter must not return tasks with status=done."""
     today = date.today()
-    test_db.add(Task(
-        title="Done Overdue Task",
-        priority=Priority.MEDIUM,
-        status=Status.DONE,
-        due_date=today - timedelta(days=2),
-        owner_id=test_user.id,
-    ))
-    test_db.add(Task(
-        title="Pending Overdue Task",
-        priority=Priority.MEDIUM,
-        status=Status.TODO,
-        due_date=today - timedelta(days=2),
-        owner_id=test_user.id,
-    ))
+    test_db.add(
+        Task(
+            title="Done Overdue Task",
+            priority=Priority.MEDIUM,
+            status=Status.DONE,
+            due_date=today - timedelta(days=2),
+            owner_id=test_user.id,
+        )
+    )
+    test_db.add(
+        Task(
+            title="Pending Overdue Task",
+            priority=Priority.MEDIUM,
+            status=Status.TODO,
+            due_date=today - timedelta(days=2),
+            owner_id=test_user.id,
+        )
+    )
     test_db.commit()
 
     response = admin_client.get("/tasks/admin/all?overdue=true")
@@ -195,20 +203,24 @@ def test_admin_all_without_overdue_filter_returns_all_tasks(
 ) -> None:
     """Without ?overdue=true, admin endpoint returns all tasks regardless of due_date."""
     today = date.today()
-    test_db.add(Task(
-        title="Overdue Task",
-        priority=Priority.MEDIUM,
-        status=Status.TODO,
-        due_date=today - timedelta(days=3),
-        owner_id=test_user.id,
-    ))
-    test_db.add(Task(
-        title="Future Task",
-        priority=Priority.MEDIUM,
-        status=Status.TODO,
-        due_date=today + timedelta(days=7),
-        owner_id=test_user.id,
-    ))
+    test_db.add(
+        Task(
+            title="Overdue Task",
+            priority=Priority.MEDIUM,
+            status=Status.TODO,
+            due_date=today - timedelta(days=3),
+            owner_id=test_user.id,
+        )
+    )
+    test_db.add(
+        Task(
+            title="Future Task",
+            priority=Priority.MEDIUM,
+            status=Status.TODO,
+            due_date=today + timedelta(days=7),
+            owner_id=test_user.id,
+        )
+    )
     test_db.commit()
 
     response = admin_client.get("/tasks/admin/all")
@@ -309,9 +321,9 @@ def test_reanalyze_preserves_due_date_based_high_priority(client: TestClient) ->
     reanalyze_resp = client.post(f"/tasks/{task['id']}/reanalyze-priority")
 
     assert reanalyze_resp.status_code == 200
-    assert reanalyze_resp.json()["priority"] == Priority.HIGH.value, (
-        "Reanalysis must preserve HIGH priority for overdue task"
-    )
+    assert (
+        reanalyze_resp.json()["priority"] == Priority.HIGH.value
+    ), "Reanalysis must preserve HIGH priority for overdue task"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

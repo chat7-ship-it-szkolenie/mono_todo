@@ -184,7 +184,9 @@ class MockAIPriorityService:
             days_until_due = (due_date - today).days
             if days_until_due <= 3:
                 if days_until_due < 0:
-                    reason = f"Wysoki priorytet: zadanie jest przeterminowane (termin był {due_date})."
+                    reason = (
+                        f"Wysoki priorytet: zadanie jest przeterminowane (termin był {due_date})."
+                    )
                 elif days_until_due == 0:
                     reason = "Wysoki priorytet: termin wykonania zadania upływa dzisiaj."
                 else:

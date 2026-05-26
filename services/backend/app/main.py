@@ -48,4 +48,3 @@ def root() -> dict[str, str]:
 def health() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy"}
-

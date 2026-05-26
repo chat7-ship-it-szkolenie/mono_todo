@@ -29,8 +29,8 @@ check_command npm
 
 PYTHON_MINOR=$(python3 -c "import sys; print(sys.version_info.minor)")
 PYTHON_MAJOR=$(python3 -c "import sys; print(sys.version_info.major)")
-if [[ "$PYTHON_MAJOR" -lt 3 ]] || [[ "$PYTHON_MAJOR" -eq 3 && "$PYTHON_MINOR" -lt 11 ]]; then
-  error "Python 3.11+ is required (found $(python3 --version))."
+if [[ "$PYTHON_MAJOR" -lt 3 ]] || [[ "$PYTHON_MAJOR" -eq 3 && "$PYTHON_MINOR" -lt 10 ]]; then
+  error "Python 3.10+ is required (found $(python3 --version))."
   exit 1
 fi
 

@@ -388,6 +388,7 @@ function Dashboard({ userEmail, onLogout }) {
   const toast = useToast()
 
   const loadTasks = useCallback(async () => {
+    setLoading(true)
     try {
       let data
       if (view === 'overdue') {

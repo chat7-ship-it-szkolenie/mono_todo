@@ -9,9 +9,8 @@ BDD scenarios for:
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session
 
-from app.db.models import Priority, Status, Task, User
+from app.db.models import Priority
 from app.services.ai_priority_service import _PRIORITY_CACHE
 
 
@@ -190,7 +189,9 @@ def test_filter_tasks_by_category_and_tag(client: TestClient) -> None:
     praca = client.post("/categories/", json={"name": "Praca"}).json()
     dom = client.post("/categories/", json={"name": "Dom"}).json()
     client.post("/tasks/", json={"title": "Raport", "category_id": praca["id"], "tags": ["pilne"]})
-    client.post("/tasks/", json={"title": "Meeting", "category_id": praca["id"], "tags": ["weekend"]})
+    client.post(
+        "/tasks/", json={"title": "Meeting", "category_id": praca["id"], "tags": ["weekend"]}
+    )
     client.post("/tasks/", json={"title": "Zakupy", "category_id": dom["id"], "tags": ["pilne"]})
 
     response = client.get(f"/tasks/?category_id={praca['id']}&tag=pilne")
@@ -295,9 +296,9 @@ def test_reanalyze_preserves_category_based_high_priority(client: TestClient) ->
     reanalyze_resp = client.post(f"/tasks/{task['id']}/reanalyze-priority")
 
     assert reanalyze_resp.status_code == 200
-    assert reanalyze_resp.json()["priority"] == Priority.HIGH.value, (
-        "Reanalysis must preserve HIGH priority set by category context"
-    )
+    assert (
+        reanalyze_resp.json()["priority"] == Priority.HIGH.value
+    ), "Reanalysis must preserve HIGH priority set by category context"
 
 
 def test_reanalyze_sets_ai_override_when_ai_overrides_user_priority(
@@ -329,6 +330,6 @@ def test_reanalyze_sets_ai_override_when_ai_overrides_user_priority(
     assert reanalyze_resp.status_code == 200
     reanalyzed = reanalyze_resp.json()
     assert reanalyzed["priority"] == Priority.HIGH.value
-    assert reanalyzed["ai_override"] is True, (
-        "ai_override stays True when AI still overrides user-set MEDIUM to HIGH"
-    )
+    assert (
+        reanalyzed["ai_override"] is True
+    ), "ai_override stays True when AI still overrides user-set MEDIUM to HIGH"

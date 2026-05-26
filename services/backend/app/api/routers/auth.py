@@ -36,7 +36,9 @@ def register(
     """
     user = service.register(user_data)
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
+        )
     return UserResponse.model_validate(user)
 
 

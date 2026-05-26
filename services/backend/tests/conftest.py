@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, create_engine, Session
 
 from app.main import app
-from app.db.models import Task, User
+from app.db.models import User
 from app.core.security import hash_password, create_access_token
 
 

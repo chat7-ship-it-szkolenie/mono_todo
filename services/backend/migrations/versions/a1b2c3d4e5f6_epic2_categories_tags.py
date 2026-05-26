@@ -5,16 +5,15 @@ Revises: 13c8aec48ae9
 Create Date: 2026-03-28 14:00:00.000000
 
 """
+
 from typing import Sequence, Union
 
-import sqlalchemy as sa
 from alembic import op
 from sqlalchemy import text
 
-
 # revision identifiers, used by Alembic.
-revision: str = 'a1b2c3d4e5f6'
-down_revision: Union[str, None] = '13c8aec48ae9'
+revision: str = "a1b2c3d4e5f6"
+down_revision: Union[str, None] = "13c8aec48ae9"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -36,7 +35,9 @@ def upgrade() -> None:
     existing = {row[1] for row in bind.execute(text("PRAGMA table_info(task)"))}
 
     if "category_id" not in existing:
-        bind.execute(text("ALTER TABLE task ADD COLUMN category_id INTEGER REFERENCES category(id)"))
+        bind.execute(
+            text("ALTER TABLE task ADD COLUMN category_id INTEGER REFERENCES category(id)")
+        )
         bind.execute(text("CREATE INDEX IF NOT EXISTS ix_task_category_id ON task (category_id)"))
 
     if "tags" not in existing:
